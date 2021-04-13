@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,10 +43,10 @@ option (google.api.resource_definition) = {
   pattern: "projects/{project}/agent/environments/{environment}/users/{user}/sessions/{session}"
 };
 
-// A session represents an interaction with a user. You retrieve user input
-// and pass it to the [DetectIntent][google.cloud.dialogflow.v2.Sessions.DetectIntent] (or
-// [StreamingDetectIntent][google.cloud.dialogflow.v2.Sessions.StreamingDetectIntent]) method to determine
-// user intent and respond.
+// A service used for session interactions.
+//
+// For more information, see the [API interactions
+// guide](https://cloud.google.com/dialogflow/docs/api-overview).
 service Sessions {
   option (google.api.default_host) = "dialogflow.googleapis.com";
   option (google.api.oauth_scopes) =
@@ -57,12 +57,24 @@ service Sessions {
   // as a result. This method is not idempotent, because it may cause contexts
   // and session entity types to be updated, which in turn might affect
   // results of future queries.
+  //
+  // Note: Always use agent versions for production traffic.
+  // See [Versions and
+  // environments](https://cloud.google.com/dialogflow/es/docs/agents-versions).
   rpc DetectIntent(DetectIntentRequest) returns (DetectIntentResponse) {
     option (google.api.http) = {
       post: "/v2/{session=projects/*/agent/sessions/*}:detectIntent"
       body: "*"
       additional_bindings {
         post: "/v2/{session=projects/*/agent/environments/*/users/*/sessions/*}:detectIntent"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v2/{session=projects/*/locations/*/agent/sessions/*}:detectIntent"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v2/{session=projects/*/locations/*/agent/environments/*/users/*/sessions/*}:detectIntent"
         body: "*"
       }
     };
@@ -72,6 +84,10 @@ service Sessions {
   // Processes a natural language query in audio format in a streaming fashion
   // and returns structured, actionable data as a result. This method is only
   // available via the gRPC API (not REST).
+  //
+  // Note: Always use agent versions for production traffic.
+  // See [Versions and
+  // environments](https://cloud.google.com/dialogflow/es/docs/agents-versions).
   rpc StreamingDetectIntent(stream StreamingDetectIntentRequest) returns (stream StreamingDetectIntentResponse) {
   }
 }
@@ -82,11 +98,19 @@ message DetectIntentRequest {
   // `projects/<Project ID>/agent/sessions/<Session ID>`, or
   // `projects/<Project ID>/agent/environments/<Environment ID>/users/<User
   // ID>/sessions/<Session ID>`. If `Environment ID` is not specified, we assume
-  // default 'draft' environment. If `User ID` is not specified, we are using
-  // "-". It's up to the API caller to choose an appropriate `Session ID` and
-  // `User Id`. They can be a random number or some type of user and session
+  // default 'draft' environment (`Environment ID` might be referred to as
+  // environment name at some places). If `User ID` is not specified, we are
+  // using "-". It's up to the API caller to choose an appropriate `Session ID`
+  // and `User Id`. They can be a random number or some type of user and session
   // identifiers (preferably hashed). The length of the `Session ID` and
   // `User ID` must not exceed 36 characters.
+  //
+  // For more information, see the [API interactions
+  // guide](https://cloud.google.com/dialogflow/docs/api-overview).
+  //
+  // Note: Always use agent versions for production traffic.
+  // See [Versions and
+  // environments](https://cloud.google.com/dialogflow/es/docs/agents-versions).
   string session = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {
@@ -189,6 +213,17 @@ message QueryParameters {
   // Configures the type of sentiment analysis to perform. If not
   // provided, sentiment analysis is not performed.
   SentimentAnalysisRequestConfig sentiment_analysis_request_config = 10;
+
+  // This field can be used to pass HTTP headers for a webhook
+  // call. These headers will be sent to webhook along with the headers that
+  // have been configured through the Dialogflow web console. The headers
+  // defined within this field will overwrite the headers configured through the
+  // Dialogflow console if there is a conflict. Header names are
+  // case-insensitive. Google's specified headers are not allowed. Including:
+  // "Host", "Content-Length", "Connection", "From", "User-Agent",
+  // "Accept-Encoding", "If-Modified-Since", "If-None-Match", "X-Forwarded-For",
+  // etc.
+  map<string, string> webhook_headers = 14;
 }
 
 // Represents the query input. It can contain either:
@@ -256,7 +291,8 @@ message QueryResult {
   // -   MapKey value: parameter name
   // -   MapValue type:
   //     -   If parameter's entity type is a composite entity: map
-  //     -   Else: string or number, depending on parameter value type
+  //     -   Else: depending on parameter value type, could be one of string,
+  //         number, boolean, null, list or map
   // -   MapValue value:
   //     -   If parameter's entity type is a composite entity:
   //         map from composite entity property names to property values
@@ -362,6 +398,13 @@ message StreamingDetectIntentRequest {
   // `User Id`. They can be a random number or some type of user and session
   // identifiers (preferably hashed). The length of the `Session ID` and
   // `User ID` must not exceed 36 characters.
+  //
+  // For more information, see the [API interactions
+  // guide](https://cloud.google.com/dialogflow/docs/api-overview).
+  //
+  // Note: Always use agent versions for production traffic.
+  // See [Versions and
+  // environments](https://cloud.google.com/dialogflow/es/docs/agents-versions).
   string session = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference) = {
@@ -569,7 +612,8 @@ message EventInput {
   // -   MapKey value: parameter name
   // -   MapValue type:
   //     -   If parameter's entity type is a composite entity: map
-  //     -   Else: string or number, depending on parameter value type
+  //     -   Else: depending on parameter value type, could be one of string,
+  //         number, boolean, null, list or map
   // -   MapValue value:
   //     -   If parameter's entity type is a composite entity:
   //         map from composite entity property names to property values
@@ -591,8 +635,16 @@ message SentimentAnalysisRequestConfig {
   bool analyze_query_text_sentiment = 1;
 }
 
-// The result of sentiment analysis as configured by
-// `sentiment_analysis_request_config`.
+// The result of sentiment analysis. Sentiment analysis inspects user input
+// and identifies the prevailing subjective opinion, especially to determine a
+// user's attitude as positive, negative, or neutral.
+// For [Participants.DetectIntent][], it needs to be configured in
+// [DetectIntentRequest.query_params][google.cloud.dialogflow.v2.DetectIntentRequest.query_params]. For
+// [Participants.StreamingDetectIntent][], it needs to be configured in
+// [StreamingDetectIntentRequest.query_params][google.cloud.dialogflow.v2.StreamingDetectIntentRequest.query_params].
+// And for [Participants.AnalyzeContent][google.cloud.dialogflow.v2.Participants.AnalyzeContent] and
+// [Participants.StreamingAnalyzeContent][google.cloud.dialogflow.v2.Participants.StreamingAnalyzeContent], it needs to be configured in
+// [ConversationProfile.human_agent_assistant_config][google.cloud.dialogflow.v2.ConversationProfile.human_agent_assistant_config]
 message SentimentAnalysisResult {
   // The sentiment analysis result for `query_text`.
   Sentiment query_text_sentiment = 1;

@@ -64,10 +64,9 @@ java_grpc_library(
 
 java_gapic_library(
     name = "dlp_java_gapic",
-    src = ":dlp_proto_with_info",
+    srcs = [":dlp_proto_with_info"],
     gapic_yaml = "dlp_gapic.yaml",
-    package = "google.privacy.dlp.v2",
-    service_yaml = "dlp_v2.yaml",
+    grpc_service_config = "dlp_grpc_service_config.json",
     test_deps = [
         ":dlp_java_grpc",
     ],
@@ -154,63 +153,21 @@ go_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "moved_proto_library",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
-    "py_grpc_library",
-    "py_proto_library",
-)
-
-moved_proto_library(
-    name = "dlp_moved_proto",
-    srcs = [":dlp_proto"],
-    deps = [
-        "//google/api:annotations_proto",
-        "//google/api:client_proto",
-        "//google/api:field_behavior_proto",
-        "//google/api:resource_proto",
-        "//google/rpc:status_proto",
-        "//google/type:date_proto",
-        "//google/type:dayofweek_proto",
-        "//google/type:timeofday_proto",
-        "@com_google_protobuf//:duration_proto",
-        "@com_google_protobuf//:empty_proto",
-        "@com_google_protobuf//:field_mask_proto",
-        "@com_google_protobuf//:timestamp_proto",
-    ],
-)
-
-py_proto_library(
-    name = "dlp_py_proto",
-    plugin = "@protoc_docs_plugin//:docs_plugin",
-    deps = [":dlp_moved_proto"],
-)
-
-py_grpc_library(
-    name = "dlp_py_grpc",
-    srcs = [":dlp_moved_proto"],
-    deps = [":dlp_py_proto"],
 )
 
 py_gapic_library(
     name = "dlp_py_gapic",
-    src = ":dlp_proto_with_info",
-    gapic_yaml = "dlp_gapic.yaml",
-    package = "google.privacy.dlp.v2",
-    service_yaml = "dlp_v2.yaml",
-    deps = [
-        ":dlp_py_grpc",
-        ":dlp_py_proto",
-    ],
+    srcs = [":dlp_proto"],
+    grpc_service_config = "dlp_grpc_service_config.json",
+    opt_args = ["python-gapic-namespace=google.cloud"],
 )
 
-# Open Source Packages
 py_gapic_assembly_pkg(
     name = "privacy-dlp-v2-py",
     deps = [
         ":dlp_py_gapic",
-        ":dlp_py_grpc",
-        ":dlp_py_proto",
     ],
 )
 
@@ -240,6 +197,7 @@ php_gapic_library(
     name = "dlp_php_gapic",
     src = ":dlp_proto_with_info",
     gapic_yaml = "dlp_gapic.yaml",
+    grpc_service_config = "dlp_grpc_service_config.json",
     package = "google.privacy.dlp.v2",
     service_yaml = "dlp_v2.yaml",
     deps = [
@@ -269,8 +227,10 @@ load(
 
 nodejs_gapic_library(
     name = "dlp_nodejs_gapic",
+    package_name = "@google-cloud/dlp",
     src = ":dlp_proto_with_info",
-    gapic_yaml = "dlp_gapic.yaml",
+    extra_protoc_parameters = ["metadata"],
+    grpc_service_config = "dlp_grpc_service_config.json",
     package = "google.privacy.dlp.v2",
     service_yaml = "dlp_v2.yaml",
     deps = [],
@@ -290,7 +250,7 @@ nodejs_gapic_assembly_pkg(
 load(
     "@com_google_googleapis_imports//:imports.bzl",
     "ruby_gapic_assembly_pkg",
-    "ruby_gapic_library",
+    "ruby_cloud_gapic_library",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
@@ -306,12 +266,19 @@ ruby_grpc_library(
     deps = [":dlp_ruby_proto"],
 )
 
-ruby_gapic_library(
+ruby_cloud_gapic_library(
     name = "dlp_ruby_gapic",
-    src = ":dlp_proto_with_info",
-    gapic_yaml = "dlp_gapic.yaml",
-    package = "google.privacy.dlp.v2",
-    service_yaml = "dlp_v2.yaml",
+    srcs = [":dlp_proto_with_info"],
+    extra_protoc_parameters = [
+        "ruby-cloud-gem-name=google-cloud-dlp-v2",
+        "ruby-cloud-env-prefix=DLP",
+        "ruby-cloud-product-url=https://cloud.google.com/dlp",
+        "ruby-cloud-api-id=dlp.googleapis.com",
+        "ruby-cloud-api-shortname=dlp",
+    ],
+    grpc_service_config = "dlp_grpc_service_config.json",
+    ruby_cloud_description = "Provides methods for detection of privacy-sensitive fragments in text, images, and Google Cloud Platform storage repositories.",
+    ruby_cloud_title = "Cloud Data Loss Prevention (DLP) V2",
     deps = [
         ":dlp_ruby_grpc",
         ":dlp_ruby_proto",
@@ -352,10 +319,9 @@ csharp_grpc_library(
 
 csharp_gapic_library(
     name = "dlp_csharp_gapic",
-    src = ":dlp_proto_with_info",
-    gapic_yaml = "dlp_gapic.yaml",
-    package = "google.privacy.dlp.v2",
-    service_yaml = "dlp_v2.yaml",
+    srcs = [":dlp_proto_with_info"],
+    common_resources_config = "@gax_dotnet//:Google.Api.Gax/ResourceNames/CommonResourcesConfig.json",
+    grpc_service_config = "dlp_grpc_service_config.json",
     deps = [
         ":dlp_csharp_grpc",
         ":dlp_csharp_proto",

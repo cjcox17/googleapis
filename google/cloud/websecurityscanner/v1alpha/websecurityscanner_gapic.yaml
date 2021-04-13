@@ -1,8 +1,6 @@
 type: com.google.api.codegen.ConfigProto
 config_schema_version: 2.0.0
 language_settings:
-  java:
-    package_name: com.google.cloud.websecurityscanner.v1alpha
   python:
     package_name: google.cloud.websecurityscanner_v1alpha.gapic
   go:
@@ -17,6 +15,3 @@ language_settings:
     package_name: websecurityscanner.v1alpha
 interfaces:
 - name: google.cloud.websecurityscanner.v1alpha.WebSecurityScanner
-  methods:
-  - name: DeleteScanConfig
-    retry_codes_name: idempotent

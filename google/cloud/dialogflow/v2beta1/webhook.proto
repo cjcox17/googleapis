@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,9 +35,15 @@ option objc_class_prefix = "DF";
 message WebhookRequest {
   // The unique identifier of detectIntent request session.
   // Can be used to identify end-user inside webhook implementation.
-  // Format: `projects/<Project ID>/agent/sessions/<Session ID>`, or
-  // `projects/<Project ID>/agent/environments/<Environment ID>/users/<User
-  // ID>/sessions/<Session ID>`.
+  // Supported formats:
+  // - `projects/<Project ID>/agent/sessions/<Session ID>,
+  // - `projects/<Project ID>/locations/<Location ID>/agent/sessions/<Session
+  //   ID>`,
+  // - `projects/<Project ID>/agent/environments/<Environment ID>/users/<User
+  //   ID>/sessions/<Session ID>`,
+  // - `projects/<Project ID>/locations/<Location
+  //   ID>/agent/environments/<Environment ID>/users/<User ID>/sessions/<Session
+  //   ID>`,
   string session = 4;
 
   // The unique identifier of the response. Contains the same value as
@@ -111,6 +117,12 @@ message WebhookResponse {
   // `fulfillment_messages`, and `payload` fields.
   EventInput followup_event_input = 6;
 
+  // Indicates that a live agent should be brought in to handle the
+  // interaction with the user. In most cases, when you set this flag to true,
+  // you would also want to set end_interaction to true as well. Default is
+  // false.
+  bool live_agent_handoff = 7;
+
   // Optional. Indicates that this intent ends an interaction. Some integrations
   // (e.g., Actions on Google or Dialogflow phone gateway) use this information
   // to close interaction with an end user. Default is false.
@@ -146,8 +158,8 @@ message OriginalDetectIntentRequest {
   //    "caller_id": "+18558363987"
   //  }
   // }</pre>
-  // Note: The caller ID field (`caller_id`) will be redacted for Standard
+  // Note: The caller ID field (`caller_id`) will be redacted for Trial
   // Edition agents and populated with the caller ID in [E.164
-  // format](https://en.wikipedia.org/wiki/E.164) for Enterprise Edition agents.
+  // format](https://en.wikipedia.org/wiki/E.164) for Essentials Edition agents.
   google.protobuf.Struct payload = 3;
 }

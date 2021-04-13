@@ -18,6 +18,7 @@ package google.cloud.osconfig.agentendpoint.v1;
 
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/cloud/osconfig/agentendpoint/v1/inventory.proto";
 import "google/cloud/osconfig/agentendpoint/v1/tasks.proto";
 
 option go_package = "google.golang.org/genproto/googleapis/cloud/osconfig/agentendpoint/v1;agentendpoint";
@@ -54,6 +55,11 @@ service AgentEndpointService {
   rpc RegisterAgent(RegisterAgentRequest) returns (RegisterAgentResponse) {
     option (google.api.method_signature) = "instance_id_token,agent_version,supported_capabilities";
   }
+
+  // Reports the VMs current inventory.
+  rpc ReportInventory(ReportInventoryRequest) returns (ReportInventoryResponse) {
+    option (google.api.method_signature) = "instance_id_token,inventory_checksum,inventory";
+  }
 }
 
 // A request message to receive task notifications.
@@ -67,8 +73,8 @@ message ReceiveTaskNotificationRequest {
   string agent_version = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
-// The streaming rpc message that notifies the agent when it has a task
-// that it needs to perform on the VM instance.
+// The streaming rpc message that will notify the agent when it has a task
+// it needs to perform on the instance.
 message ReceiveTaskNotificationResponse {
 
 }
@@ -113,6 +119,9 @@ message ReportTaskProgressRequest {
 
     // Details about the progress of the exec step task.
     ExecStepTaskProgress exec_step_task_progress = 5;
+
+    // Details about the progress of the apply config task.
+    ApplyConfigTaskProgress apply_config_task_progress = 6;
   }
 }
 
@@ -134,8 +143,8 @@ message ReportTaskCompleteRequest {
 
   // Required. The type of task to report completed.
   //
-  // The output must include the appropriate message based on the following
-  // enum values:
+  // Output must include the appropriate message based on this enum as
+  // specified below:
   // APPLY_PATCHES = ApplyPatchesTaskOutput
   // EXEC_STEP = ExecStepTaskOutput
   TaskType task_type = 3 [(google.api.field_behavior) = REQUIRED];
@@ -150,6 +159,9 @@ message ReportTaskCompleteRequest {
 
     // Final output details of the exec step task;
     ExecStepTaskOutput exec_step_task_output = 6;
+
+    // Final output details of the apply config task;
+    ApplyConfigTaskOutput apply_config_task_output = 7;
   }
 }
 
@@ -177,4 +189,28 @@ message RegisterAgentRequest {
 // The response message after the agent registered.
 message RegisterAgentResponse {
 
+}
+
+// The request message for having the agent report inventory.
+message ReportInventoryRequest {
+  // Required. This is the Compute Engine instance identity token described in
+  // https://cloud.google.com/compute/docs/instances/verifying-instance-identity
+  // where the audience is 'osconfig.googleapis.com' and the format is 'full'.
+  string instance_id_token = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Required. This is a client created checksum that should be generated based on the
+  // contents of the reported inventory.  This will be used by the service to
+  // determine if it has the latest version of inventory.
+  string inventory_checksum = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. This is the details of the inventory.  Should only be provided if the
+  // inventory has changed since the last report, or if instructed by the
+  // service to provide full inventory.
+  Inventory inventory = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// The response message after the agent has reported inventory.
+message ReportInventoryResponse {
+  // If true, the full inventory should be reported back to the server.
+  bool report_full_inventory = 1;
 }

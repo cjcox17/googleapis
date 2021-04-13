@@ -56,10 +56,8 @@ java_grpc_library(
 
 java_gapic_library(
     name = "asset_java_gapic",
-    src = ":asset_proto_with_info",
-    gapic_yaml = "cloudasset_gapic.yaml",
-    package = "google.cloud.asset.v1p1beta1",
-    service_yaml = "cloudasset_v1p1beta1.yaml",
+    srcs = [":asset_proto_with_info"],
+    grpc_service_config = "cloudasset_grpc_service_config.json",
     test_deps = [
         ":asset_java_grpc",
         "//google/iam/v1:iam_java_grpc",
@@ -145,55 +143,20 @@ go_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "moved_proto_library",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
-    "py_grpc_library",
-    "py_proto_library",
-)
-
-moved_proto_library(
-    name = "asset_moved_proto",
-    srcs = [":asset_proto"],
-    deps = [
-        "//google/api:annotations_proto",
-        "//google/api:client_proto",
-        "//google/api:field_behavior_proto",
-        "//google/iam/v1:policy_proto",
-    ],
-)
-
-py_proto_library(
-    name = "asset_py_proto",
-    plugin = "@protoc_docs_plugin//:docs_plugin",
-    deps = [":asset_moved_proto"],
-)
-
-py_grpc_library(
-    name = "asset_py_grpc",
-    srcs = [":asset_moved_proto"],
-    deps = [":asset_py_proto"],
 )
 
 py_gapic_library(
     name = "asset_py_gapic",
-    src = ":asset_proto_with_info",
-    gapic_yaml = "cloudasset_gapic.yaml",
-    package = "google.cloud.asset.v1p1beta1",
-    service_yaml = "cloudasset_v1p1beta1.yaml",
-    deps = [
-        ":asset_py_grpc",
-        ":asset_py_proto",
-    ],
+    srcs = [":asset_proto"],
+    grpc_service_config = "cloudasset_grpc_service_config.json",
 )
 
-# Open Source Packages
 py_gapic_assembly_pkg(
     name = "asset-v1p1beta1-py",
     deps = [
         ":asset_py_gapic",
-        ":asset_py_grpc",
-        ":asset_py_proto",
     ],
 )
 
@@ -223,6 +186,7 @@ php_gapic_library(
     name = "asset_php_gapic",
     src = ":asset_proto_with_info",
     gapic_yaml = "cloudasset_gapic.yaml",
+    grpc_service_config = "cloudasset_grpc_service_config.json",
     package = "google.cloud.asset.v1p1beta1",
     service_yaml = "cloudasset_v1p1beta1.yaml",
     deps = [
@@ -252,8 +216,10 @@ load(
 
 nodejs_gapic_library(
     name = "asset_nodejs_gapic",
+    package_name = "@google-cloud/asset",
     src = ":asset_proto_with_info",
-    gapic_yaml = "cloudasset_gapic.yaml",
+    extra_protoc_parameters = ["metadata"],
+    grpc_service_config = "cloudasset_grpc_service_config.json",
     package = "google.cloud.asset.v1p1beta1",
     service_yaml = "cloudasset_v1p1beta1.yaml",
     deps = [],
@@ -335,10 +301,9 @@ csharp_grpc_library(
 
 csharp_gapic_library(
     name = "asset_csharp_gapic",
-    src = ":asset_proto_with_info",
-    gapic_yaml = "cloudasset_gapic.yaml",
-    package = "google.cloud.asset.v1p1beta1",
-    service_yaml = "cloudasset_v1p1beta1.yaml",
+    srcs = [":asset_proto_with_info"],
+    common_resources_config = "@gax_dotnet//:Google.Api.Gax/ResourceNames/CommonResourcesConfig.json",
+    grpc_service_config = "cloudasset_grpc_service_config.json",
     deps = [
         ":asset_csharp_grpc",
         ":asset_csharp_proto",

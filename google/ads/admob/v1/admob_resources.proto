@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,21 +11,39 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 
 syntax = "proto3";
 
 package google.ads.admob.v1;
 
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 import "google/type/date.proto";
 
 option go_package = "google.golang.org/genproto/googleapis/ads/admob/v1;admob";
-option java_outer_classname = "AdMobResourceProto";
+option java_outer_classname = "AdMobResourcesProto";
 option java_package = "com.google.ads.admob.v1";
+
+// The sorting order.
+enum SortOrder {
+  // Default value for an unset field. Do not use.
+  SORT_ORDER_UNSPECIFIED = 0;
+
+  // Sort dimension value or metric value in ascending order.
+  ASCENDING = 1;
+
+  // Sort dimension value or metric value in descending order.
+  DESCENDING = 2;
+}
 
 // A publisher account contains information relevant to the use of this API,
 // such as the time zone used for the reports.
 message PublisherAccount {
+  option (google.api.resource) = {
+    type: "admob.googleapis.com/PublisherAccount"
+    pattern: "accounts/{publisher}"
+  };
+
   // Resource name of this account.
   // Format is accounts/{publisher_id}.
   string name = 1;
@@ -84,15 +102,15 @@ message PublisherAccount {
 message NetworkReportSpec {
   // Describes which report rows to match based on their dimension values.
   message DimensionFilter {
-    // Applies the filter criterion to the specified dimension.
-    Dimension dimension = 1;
-
     // Filter operator to be applied.
     oneof operator {
       // Matches a row if its value for the specified dimension is in one of the
       // values specified in this condition.
       StringList matches_any = 2;
     }
+
+    // Applies the filter criterion to the specified dimension.
+    Dimension dimension = 1;
   }
 
   // Sorting direction to be applied on a dimension or a metric.
@@ -138,6 +156,15 @@ message NetworkReportSpec {
     // "ca-app-pub-1234~1234").
     APP = 5;
 
+    // Type of the ad (for example, "text" or "image"), an ad delivery
+    // dimension.
+    //
+    // **Warning:** The dimension is incompatible with
+    // [AD_REQUESTS](#Metric.ENUM_VALUES.AD_REQUESTS),
+    // [MATCH_RATE](#Metric.ENUM_VALUES.MATCH_RATE) and
+    // [IMPRESSION_RPM](#Metric.ENUM_VALUES.IMPRESSION_RPM) metrics.
+    AD_TYPE = 6;
+
     // CLDR country code of the place where the ad views/clicks occur (for
     // example, "US" or "FR"). This is a geography dimension.
     COUNTRY = 7;
@@ -159,6 +186,9 @@ message NetworkReportSpec {
     METRIC_UNSPECIFIED = 0;
 
     // The number of ad requests. The value is an integer.
+    //
+    // **Warning:** The metric is incompatible with
+    // [AD_TYPE](#Dimension.ENUM_VALUES.AD_TYPE) dimension.
     AD_REQUESTS = 1;
 
     // The number of times a user clicks an ad. The value is an integer.
@@ -179,6 +209,9 @@ message NetworkReportSpec {
 
     // The estimated earnings per thousand ad impressions. The value is in
     // micros. For example, $1.03 would be represented as 1030000.
+    //
+    // **Warning:** The metric is incompatible with
+    // [AD_TYPE](#Dimension.ENUM_VALUES.AD_TYPE) dimension.
     IMPRESSION_RPM = 6;
 
     // The number of times ads are returned in response to a request. The value
@@ -187,6 +220,9 @@ message NetworkReportSpec {
 
     // The ratio of matched ad requests over the total ad requests. The value is
     // a double precision (approximate) decimal value.
+    //
+    // **Warning:** The metric is incompatible with
+    // [AD_TYPE](#Dimension.ENUM_VALUES.AD_TYPE) dimension.
     MATCH_RATE = 8;
 
     // The ratio of ads that are displayed over ads that are returned, defined
@@ -222,6 +258,14 @@ message NetworkReportSpec {
   // API returns as many rows as possible, up to 100000. Acceptable values are
   // 1-100000, inclusive. Any other values are treated as 100000.
   int32 max_report_rows = 7;
+
+  // A report time zone. Accepts an IANA TZ name values, such as
+  // "America/Los_Angeles."  If no time zone is defined, the account default
+  // takes effect. Check default value by the get account action.
+  //
+  // **Warning:** The "America/Los_Angeles" is the only supported value at
+  // the moment.
+  string time_zone = 8;
 }
 
 // The specification for generating an AdMob Mediation report.
@@ -262,15 +306,15 @@ message NetworkReportSpec {
 message MediationReportSpec {
   // Describes which report rows to match based on their dimension values.
   message DimensionFilter {
-    // Applies the filter criterion to the specified dimension.
-    Dimension dimension = 1;
-
     // Filter operator to be applied.
     oneof operator {
       // Matches a row if its value for the specified dimension is in one of the
       // values specified in this condition.
       StringList matches_any = 2;
     }
+
+    // Applies the filter criterion to the specified dimension.
+    Dimension dimension = 1;
   }
 
   // Sorting direction to be applied on a dimension or a metric.
@@ -308,14 +352,12 @@ message MediationReportSpec {
     // dimension.
     WEEK = 3;
 
-    // The unique ID of the ad source (for example, "5450213213286189855" and
-    // "AdMob Network" as label value).
+    // The [unique ID of the ad source](/admob/api/v1/ad_sources) (for example,
+    // "5450213213286189855" and "AdMob Network" as label value).
     AD_SOURCE = 4;
 
     // The unique ID of the ad source instance (for example,
     // "ca-app-pub-1234#5678" and "AdMob (default)" as label value).
-    // Warning: The dimension is incompatible with ESTIMATED_EARNINGS and
-    // OBSERVED_ECPM metrics.
     AD_SOURCE_INSTANCE = 5;
 
     // The unique ID of the ad unit (for example, "ca-app-pub-1234/8790").
@@ -328,8 +370,6 @@ message MediationReportSpec {
 
     // The unique ID of the mediation group (for example,
     // "ca-app-pub-1234:mg:1234" and "AdMob (default)" as label value).
-    // Warning: The dimension is incompatible with ESTIMATED_EARNINGS and
-    // OBSERVED_ECPM metrics.
     MEDIATION_GROUP = 11;
 
     // CLDR country code of the place where the ad views/clicks occur (for
@@ -362,8 +402,10 @@ message MediationReportSpec {
     // EUR, or other) of the earning metrics are determined by the localization
     // setting for currency. The amount is in micros. For example, $6.50 would
     // be represented as 6500000.
-    // Warning: The metric is incompatible with AD_SOURCE_INSTANCE and
-    // MEDIATION_GROUP dimensions.
+    //
+    // Estimated earnings per mediation group and per ad source instance level
+    // is supported dating back to October 20, 2019. Third-party estimated
+    // earnings will show 0 for dates prior to October 20, 2019.
     ESTIMATED_EARNINGS = 3;
 
     // The total number of ads shown to users. The value is an integer.
@@ -385,8 +427,10 @@ message MediationReportSpec {
     // (USD, EUR, or other) of the earning metrics are determined by the
     // localization setting for currency. The amount is in micros. For example,
     // $2.30 would be represented as 2300000.
-    // Warning: The metric is incompatible with AD_SOURCE_INSTANCE and
-    // MEDIATION_GROUP dimensions.
+    //
+    // The estimated average eCPM per mediation group and per ad source instance
+    // level is supported dating back to October 20, 2019. Third-party estimated
+    // average eCPM will show 0 for dates prior to October 20, 2019.
     OBSERVED_ECPM = 8;
   }
 
@@ -417,6 +461,14 @@ message MediationReportSpec {
   // API returns as many rows as possible, up to 100000. Acceptable values are
   // 1-100000, inclusive. Any other values are treated as 100000.
   int32 max_report_rows = 7;
+
+  // A report time zone. Accepts an IANA TZ name values, such as
+  // "America/Los_Angeles."  If no time zone is defined, the account default
+  // takes effect. Check default value by the get account action.
+  //
+  // **Warning:** The "America/Los_Angeles" is the only supported value at
+  // the moment.
+  string time_zone = 8;
 }
 
 // A row of the returning report.
@@ -519,7 +571,10 @@ message ReportFooter {
   // Warnings associated with generation of the report.
   repeated ReportWarning warnings = 1;
 
-  // Total number of rows that did match the request.
+  // Total number of rows that matched the request.
+  //
+  // Warning: This count does NOT always match the number of rows in the
+  // response. Do not make that assumption when processing the response.
   int64 matching_row_count = 2;
 }
 
@@ -552,16 +607,4 @@ message LocalizationSettings {
 message StringList {
   // The string values.
   repeated string values = 1;
-}
-
-// The sorting order.
-enum SortOrder {
-  // Default value for an unset field. Do not use.
-  SORT_ORDER_UNSPECIFIED = 0;
-
-  // Sort dimension value or metric value in ascending order.
-  ASCENDING = 1;
-
-  // Sort dimension value or metric value in descending order.
-  DESCENDING = 2;
 }

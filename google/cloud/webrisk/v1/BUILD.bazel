@@ -56,10 +56,9 @@ java_grpc_library(
 
 java_gapic_library(
     name = "webrisk_java_gapic",
-    src = ":webrisk_proto_with_info",
+    srcs = [":webrisk_proto_with_info"],
     gapic_yaml = "webrisk_gapic.yaml",
-    package = "google.cloud.webrisk.v1",
-    service_yaml = "webrisk_v1.yaml",
+    grpc_service_config = "webrisk_grpc_service_config.json",
     test_deps = [
         ":webrisk_java_grpc",
     ],
@@ -139,58 +138,23 @@ go_gapic_assembly_pkg(
 ##############################################################################
 # Python
 ##############################################################################
+
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "moved_proto_library",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
-    "py_grpc_library",
-    "py_proto_library",
-)
-
-moved_proto_library(
-    name = "webrisk_moved_proto",
-    srcs = [":webrisk_proto"],
-    deps = [
-        "//google/api:annotations_proto",
-        "//google/api:client_proto",
-        "//google/api:field_behavior_proto",
-        "//google/api:resource_proto",
-        "@com_google_protobuf//:timestamp_proto",
-    ],
-)
-
-py_proto_library(
-    name = "webrisk_py_proto",
-    plugin = "@protoc_docs_plugin//:docs_plugin",
-    deps = [":webrisk_moved_proto"],
-)
-
-py_grpc_library(
-    name = "webrisk_py_grpc",
-    srcs = [":webrisk_moved_proto"],
-    deps = [":webrisk_py_proto"],
 )
 
 py_gapic_library(
     name = "webrisk_py_gapic",
-    src = ":webrisk_proto_with_info",
-    gapic_yaml = "webrisk_gapic.yaml",
-    package = "google.cloud.webrisk.v1",
-    service_yaml = "webrisk_v1.yaml",
-    deps = [
-        ":webrisk_py_grpc",
-        ":webrisk_py_proto",
-    ],
+    srcs = [":webrisk_proto"],
+    grpc_service_config = "webrisk_grpc_service_config.json",
 )
 
-# Open Source Packages
 py_gapic_assembly_pkg(
     name = "webrisk-v1-py",
     deps = [
         ":webrisk_py_gapic",
-        ":webrisk_py_grpc",
-        ":webrisk_py_proto",
     ],
 )
 
@@ -220,6 +184,7 @@ php_gapic_library(
     name = "webrisk_php_gapic",
     src = ":webrisk_proto_with_info",
     gapic_yaml = "webrisk_gapic.yaml",
+    grpc_service_config = "webrisk_grpc_service_config.json",
     package = "google.cloud.webrisk.v1",
     service_yaml = "webrisk_v1.yaml",
     deps = [
@@ -249,8 +214,10 @@ load(
 
 nodejs_gapic_library(
     name = "webrisk_nodejs_gapic",
+    package_name = "@google-cloud/web-risk",
     src = ":webrisk_proto_with_info",
-    gapic_yaml = "webrisk_gapic.yaml",
+    extra_protoc_parameters = ["metadata"],
+    grpc_service_config = "webrisk_grpc_service_config.json",
     package = "google.cloud.webrisk.v1",
     service_yaml = "webrisk_v1.yaml",
     deps = [],
@@ -270,7 +237,7 @@ nodejs_gapic_assembly_pkg(
 load(
     "@com_google_googleapis_imports//:imports.bzl",
     "ruby_gapic_assembly_pkg",
-    "ruby_gapic_library",
+    "ruby_cloud_gapic_library",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
@@ -286,12 +253,19 @@ ruby_grpc_library(
     deps = [":webrisk_ruby_proto"],
 )
 
-ruby_gapic_library(
+ruby_cloud_gapic_library(
     name = "webrisk_ruby_gapic",
-    src = ":webrisk_proto_with_info",
-    gapic_yaml = "webrisk_gapic.yaml",
-    package = "google.cloud.webrisk.v1",
-    service_yaml = "webrisk_v1.yaml",
+    srcs = [":webrisk_proto_with_info"],
+    extra_protoc_parameters = [
+        "ruby-cloud-gem-name=google-cloud-web_risk-v1",
+        "ruby-cloud-env-prefix=WEBRISK",
+        "ruby-cloud-product-url=https://cloud.google.com/web-risk",
+        "ruby-cloud-api-id=webrisk.googleapis.com",
+        "ruby-cloud-api-shortname=webrisk",
+    ],
+    grpc_service_config = "webrisk_grpc_service_config.json",
+    ruby_cloud_description = "Web Risk is an enterprise security product that lets your client applications check URLs against Google's constantly updated lists of unsafe web resources.",
+    ruby_cloud_title = "Web Risk V1",
     deps = [
         ":webrisk_ruby_grpc",
         ":webrisk_ruby_proto",
@@ -332,10 +306,9 @@ csharp_grpc_library(
 
 csharp_gapic_library(
     name = "webrisk_csharp_gapic",
-    src = ":webrisk_proto_with_info",
-    gapic_yaml = "webrisk_gapic.yaml",
-    package = "google.cloud.webrisk.v1",
-    service_yaml = "webrisk_v1.yaml",
+    srcs = [":webrisk_proto_with_info"],
+    common_resources_config = "@gax_dotnet//:Google.Api.Gax/ResourceNames/CommonResourcesConfig.json",
+    grpc_service_config = "webrisk_grpc_service_config.json",
     deps = [
         ":webrisk_csharp_grpc",
         ":webrisk_csharp_proto",

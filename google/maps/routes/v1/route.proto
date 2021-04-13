@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,6 +88,18 @@ message RouteTravelAdvisory {
   // we expect that road contains tolls but we do not know an estimated price.
   // If this field is not set, then we expect there is no toll on the Route.
   TollInfo toll_info = 2;
+
+  // Speed reading intervals detailing traffic density. Applicable in case of
+  // `TRAFFIC_AWARE` and `TRAFFIC_AWARE_OPTIMAL` routing preferences.
+  // The intervals cover the entire polyline of the route without overlap.
+  // The start point of a specified interval is the same as the end point of the
+  // preceding interval.
+  //
+  // Example:
+  //
+  //     polyline: A ---- B ---- C ---- D ---- E ---- F ---- G
+  //     speed_reading_intervals: [A,C), [C,D), [D,G).
+  repeated SpeedReadingInterval speed_reading_intervals = 3;
 }
 
 // Encapsulates the additional information that the user should be informed
@@ -99,6 +111,34 @@ message RouteLegTravelAdvisory {
   // we expect that road contains tolls but we do not know an estimated price.
   // If this field does not exist, then there is no toll on the RouteLeg.
   TollInfo toll_info = 1;
+
+  // Speed reading intervals detailing traffic density. Applicable in case of
+  // `TRAFFIC_AWARE` and `TRAFFIC_AWARE_OPTIMAL` routing preferences.
+  // The intervals cover the entire polyline of the RouteLg without overlap.
+  // The start point of a specified interval is the same as the end point of the
+  // preceding interval.
+  //
+  // Example:
+  //
+  //     polyline: A ---- B ---- C ---- D ---- E ---- F ---- G
+  //     speed_reading_intervals: [A,C), [C,D), [D,G).
+  repeated SpeedReadingInterval speed_reading_intervals = 2;
+}
+
+// Encapsulates the additional information that the user should be informed
+// about, such as possible traffic zone restriction on a leg step.
+message RouteLegStepTravelAdvisory {
+  // Speed reading intervals detailing traffic density. Applicable in case of
+  // `TRAFFIC_AWARE` and `TRAFFIC_AWARE_OPTIMAL` routing preferences.
+  // The intervals cover the entire polyline of the RouteLegStep without
+  // overlap. The start point of a specified interval is the same as the end
+  // point of the preceding interval.
+  //
+  // Example:
+  //
+  //     polyline: A ---- B ---- C ---- D ---- E ---- F ---- G
+  //     speed_reading_intervals: [A,C), [C,D), [D,G).
+  repeated SpeedReadingInterval speed_reading_intervals = 1;
 }
 
 // Encapsulates the traffic restriction applied to the route. As of October
@@ -190,6 +230,10 @@ message RouteLegStep {
 
   // Navigation instructions.
   NavigationInstruction navigation_instruction = 6;
+
+  // Encapsulates the additional information that the user should be informed
+  // about, such as possible traffic zone restriction on a leg step.
+  RouteLegStepTravelAdvisory travel_advisory = 7;
 }
 
 message NavigationInstruction {
@@ -260,4 +304,36 @@ enum Maneuver {
 
   // Turn right at the roundabout.
   ROUNDABOUT_RIGHT = 18;
+}
+
+// Traffic density indicator on a contiguous segment of a polyline or path.
+// Given a path with points P_0, P_1, ... , P_N (zero-based index), the
+// SpeedReadingInterval defines an interval and describes its traffic using the
+// following categories.
+message SpeedReadingInterval {
+  // The classification of polyline speed based on traffic data.
+  enum Speed {
+    // Default value. This value is unused.
+    SPEED_UNSPECIFIED = 0;
+
+    // Normal speed, no slowdown is detected.
+    NORMAL = 1;
+
+    // Slowdown detected, but no traffic jam formed.
+    SLOW = 2;
+
+    // Traffic jam detected.
+    TRAFFIC_JAM = 3;
+  }
+
+  // The starting index of this interval in the polyline.
+  // In JSON, when the index is 0, the field appears to be unpopulated.
+  int32 start_polyline_point_index = 1;
+
+  // The ending index of this interval in the polyline.
+  // In JSON, when the index is 0, the field appears to be unpopulated.
+  int32 end_polyline_point_index = 2;
+
+  // Traffic speed in this interval.
+  Speed speed = 3;
 }

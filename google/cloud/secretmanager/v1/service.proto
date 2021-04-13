@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,9 +35,6 @@ option java_package = "com.google.cloud.secretmanager.v1";
 option objc_class_prefix = "GSM";
 option php_namespace = "Google\\Cloud\\SecretManager\\V1";
 option ruby_package = "Google::Cloud::SecretManager::V1";
-
-// `projects/*/secrets/*/versions/latest` is an alias to the `latest`
-// [SecretVersion][google.cloud.secretmanager.v1.SecretVersion].
 
 // Secret Manager Service
 //

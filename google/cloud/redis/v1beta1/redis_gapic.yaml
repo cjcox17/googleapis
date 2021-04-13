@@ -2,8 +2,6 @@ type: com.google.api.codegen.ConfigProto
 config_schema_version: 2.0.0
 # The settings of generated code in a specific language.
 language_settings:
-  java:
-    package_name: com.google.cloud.redis.v1beta1
   python:
     package_name: google.cloud.redis_v1beta1.gapic
   go:
@@ -20,30 +18,7 @@ language_settings:
 interfaces:
 # The fully qualified name of the API interface.
 - name: google.cloud.redis.v1beta1.CloudRedis
-  retry_codes_def:
-  - name: idempotent
-    retry_codes:
-    - DEADLINE_EXCEEDED
-    - UNAVAILABLE
-  - name: non_idempotent
-    retry_codes: []
-  # Definition for retry/backoff parameters.
-  retry_params_def:
-  - name: default
-    initial_retry_delay_millis: 100
-    retry_delay_multiplier: 1.3
-    max_retry_delay_millis: 60000
-    initial_rpc_timeout_millis: 20000
-    rpc_timeout_multiplier: 1
-    max_rpc_timeout_millis: 20000
-    total_timeout_millis: 600000
   methods:
-  - name: ListInstances
-    retry_codes_name: non_idempotent
-    retry_params_name: default
-  - name: GetInstance
-    retry_codes_name: non_idempotent
-    retry_params_name: default
   - name: CreateInstance
     sample_code_init_fields:
     - instance_id="test_instance"

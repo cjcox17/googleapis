@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,38 +36,7 @@ option java_outer_classname = "IntentProto";
 option java_package = "com.google.cloud.dialogflow.v2";
 option objc_class_prefix = "DF";
 
-// An intent represents a mapping between input from a user and an action to
-// be taken by your application. When you pass user input to the
-// [DetectIntent][google.cloud.dialogflow.v2.Sessions.DetectIntent] (or
-// [StreamingDetectIntent][google.cloud.dialogflow.v2.Sessions.StreamingDetectIntent]) method, the
-// Dialogflow API analyzes the input and searches
-// for a matching intent. If no match is found, the Dialogflow API returns a
-// fallback intent (`is_fallback` = true).
-//
-// You can provide additional information for the Dialogflow API to use to
-// match user input to an intent by adding the following to your intent.
-//
-// *   **Contexts** - provide additional context for intent analysis. For
-//     example, if an intent is related to an object in your application that
-//     plays music, you can provide a context to determine when to match the
-//     intent if the user input is "turn it off". You can include a context
-//     that matches the intent when there is previous user input of
-//     "play music", and not when there is previous user input of
-//     "turn on the light".
-//
-// *   **Events** - allow for matching an intent by using an event name
-//     instead of user input. Your application can provide an event name and
-//     related parameters to the Dialogflow API to match an intent. For
-//     example, when your application starts, you can send a welcome event
-//     with a user name parameter to the Dialogflow API to match an intent with
-//     a personalized welcome message for the user.
-//
-// *   **Training phrases** - provide examples of user input to train the
-//     Dialogflow API agent to better match intents.
-//
-// For more information about intents, see the
-// [Dialogflow
-// documentation](https://cloud.google.com/dialogflow/docs/intents-overview).
+// Service for managing [Intents][google.cloud.dialogflow.v2.Intent].
 service Intents {
   option (google.api.default_host) = "dialogflow.googleapis.com";
   option (google.api.oauth_scopes) =
@@ -78,6 +47,12 @@ service Intents {
   rpc ListIntents(ListIntentsRequest) returns (ListIntentsResponse) {
     option (google.api.http) = {
       get: "/v2/{parent=projects/*/agent}/intents"
+      additional_bindings {
+        get: "/v2/{parent=projects/*/locations/*/agent}/intents"
+      }
+      additional_bindings {
+        get: "/v2/{parent=projects/*/agent/environments/*}/intents"
+      }
     };
     option (google.api.method_signature) = "parent";
     option (google.api.method_signature) = "parent,language_code";
@@ -87,6 +62,9 @@ service Intents {
   rpc GetIntent(GetIntentRequest) returns (Intent) {
     option (google.api.http) = {
       get: "/v2/{name=projects/*/agent/intents/*}"
+      additional_bindings {
+        get: "/v2/{name=projects/*/locations/*/agent/intents/*}"
+      }
     };
     option (google.api.method_signature) = "name";
     option (google.api.method_signature) = "name,language_code";
@@ -97,6 +75,10 @@ service Intents {
     option (google.api.http) = {
       post: "/v2/{parent=projects/*/agent}/intents"
       body: "intent"
+      additional_bindings {
+        post: "/v2/{parent=projects/*/locations/*/agent}/intents"
+        body: "intent"
+      }
     };
     option (google.api.method_signature) = "parent,intent";
     option (google.api.method_signature) = "parent,intent,language_code";
@@ -107,6 +89,10 @@ service Intents {
     option (google.api.http) = {
       patch: "/v2/{intent.name=projects/*/agent/intents/*}"
       body: "intent"
+      additional_bindings {
+        patch: "/v2/{intent.name=projects/*/locations/*/agent/intents/*}"
+        body: "intent"
+      }
     };
     option (google.api.method_signature) = "intent,language_code";
     option (google.api.method_signature) = "intent,language_code,update_mask";
@@ -116,6 +102,9 @@ service Intents {
   rpc DeleteIntent(DeleteIntentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v2/{name=projects/*/agent/intents/*}"
+      additional_bindings {
+        delete: "/v2/{name=projects/*/locations/*/agent/intents/*}"
+      }
     };
     option (google.api.method_signature) = "name";
   }
@@ -127,6 +116,10 @@ service Intents {
     option (google.api.http) = {
       post: "/v2/{parent=projects/*/agent}/intents:batchUpdate"
       body: "*"
+      additional_bindings {
+        post: "/v2/{parent=projects/*/locations/*/agent}/intents:batchUpdate"
+        body: "*"
+      }
     };
     option (google.api.method_signature) = "parent,intent_batch_uri";
     option (google.api.method_signature) = "parent,intent_batch_inline";
@@ -143,6 +136,10 @@ service Intents {
     option (google.api.http) = {
       post: "/v2/{parent=projects/*/agent}/intents:batchDelete"
       body: "*"
+      additional_bindings {
+        post: "/v2/{parent=projects/*/locations/*/agent}/intents:batchDelete"
+        body: "*"
+      }
     };
     option (google.api.method_signature) = "parent,intents";
     option (google.longrunning.operation_info) = {
@@ -152,9 +149,15 @@ service Intents {
   }
 }
 
-// Represents an intent.
-// Intents convert a number of user expressions or patterns into an action. An
-// action is an extraction of a user command or sentence semantics.
+// An intent categorizes an end-user's intention for one conversation turn. For
+// each agent, you define many intents, where your combined intents can handle a
+// complete conversation. When an end-user writes or says something, referred to
+// as an end-user expression or end-user input, Dialogflow matches the end-user
+// input to the best intent in your agent. Matching an intent is also known as
+// intent classification.
+//
+// For more information, see the [intent
+// guide](https://cloud.google.com/dialogflow/docs/intents-overview).
 message Intent {
   option (google.api.resource) = {
     type: "dialogflow.googleapis.com/Intent"
@@ -795,6 +798,17 @@ message Intent {
   // taken into account during inference in `ML ONLY` match mode. Also,
   // auto-markup in the UI is turned off.
   bool ml_disabled = 19 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Indicates that a live agent should be brought in to handle the
+  // interaction with the user. In most cases, when you set this flag to true,
+  // you would also want to set end_interaction to true as well. Default is
+  // false.
+  bool live_agent_handoff = 20 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Indicates that this intent ends an interaction. Some integrations
+  // (e.g., Actions on Google or Dialogflow phone gateway) use this information
+  // to close interaction with an end user. Default is false.
+  bool end_interaction = 21 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. The list of context names required for this intent to be
   // triggered.

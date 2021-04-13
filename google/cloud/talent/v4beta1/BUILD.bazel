@@ -84,10 +84,8 @@ java_grpc_library(
 
 java_gapic_library(
     name = "talent_java_gapic",
-    src = ":talent_proto_with_info",
-    gapic_yaml = "talent_gapic.yaml",
-    package = "google.cloud.talent.v4beta1",
-    service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
+    srcs = [":talent_proto_with_info"],
+    grpc_service_config = "talent_grpc_service_config.json",
     test_deps = [
         ":talent_java_grpc",
     ],
@@ -157,7 +155,6 @@ go_gapic_library(
     service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
     deps = [
         ":talent_go_proto",
-        "//google/longrunning:longrunning_go_gapic",
         "//google/longrunning:longrunning_go_proto",
         "@com_google_cloud_go//longrunning:go_default_library",
         "@com_google_cloud_go//longrunning/autogen:go_default_library",
@@ -188,68 +185,20 @@ go_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "moved_proto_library",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
-    "py_grpc_library",
-    "py_proto_library",
-)
-
-moved_proto_library(
-    name = "talent_moved_proto",
-    srcs = [":talent_proto"],
-    deps = [
-        "//google/api:annotations_proto",
-        "//google/api:client_proto",
-        "//google/api:field_behavior_proto",
-        "//google/api:resource_proto",
-        "//google/longrunning:operations_proto",
-        "//google/rpc:status_proto",
-        "//google/type:date_proto",
-        "//google/type:latlng_proto",
-        "//google/type:money_proto",
-        "//google/type:postal_address_proto",
-        "//google/type:timeofday_proto",
-        "@com_google_protobuf//:any_proto",
-        "@com_google_protobuf//:duration_proto",
-        "@com_google_protobuf//:empty_proto",
-        "@com_google_protobuf//:field_mask_proto",
-        "@com_google_protobuf//:timestamp_proto",
-        "@com_google_protobuf//:wrappers_proto",
-    ],
-)
-
-py_proto_library(
-    name = "talent_py_proto",
-    plugin = "@protoc_docs_plugin//:docs_plugin",
-    deps = [":talent_moved_proto"],
-)
-
-py_grpc_library(
-    name = "talent_py_grpc",
-    srcs = [":talent_moved_proto"],
-    deps = [":talent_py_proto"],
 )
 
 py_gapic_library(
     name = "talent_py_gapic",
-    src = ":talent_proto_with_info",
-    gapic_yaml = "talent_gapic.yaml",
-    package = "google.cloud.talent.v4beta1",
-    service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
-    deps = [
-        ":talent_py_grpc",
-        ":talent_py_proto",
-    ],
+    srcs = [":talent_proto"],
+    grpc_service_config = "talent_grpc_service_config.json",
 )
 
-# Open Source Packages
 py_gapic_assembly_pkg(
     name = "talent-v4beta1-py",
     deps = [
         ":talent_py_gapic",
-        ":talent_py_grpc",
-        ":talent_py_proto",
     ],
 )
 
@@ -279,6 +228,7 @@ php_gapic_library(
     name = "talent_php_gapic",
     src = ":talent_proto_with_info",
     gapic_yaml = "talent_gapic.yaml",
+    grpc_service_config = "talent_grpc_service_config.json",
     package = "google.cloud.talent.v4beta1",
     service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
     deps = [
@@ -308,8 +258,11 @@ load(
 
 nodejs_gapic_library(
     name = "talent_nodejs_gapic",
+    package_name = "@google-cloud/talent",
     src = ":talent_proto_with_info",
-    gapic_yaml = "talent_gapic.yaml",
+    extra_protoc_parameters = ["metadata"],
+    grpc_service_config = "talent_grpc_service_config.json",
+    main_service = "talent",
     package = "google.cloud.talent.v4beta1",
     service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
     deps = [],
@@ -329,7 +282,7 @@ nodejs_gapic_assembly_pkg(
 load(
     "@com_google_googleapis_imports//:imports.bzl",
     "ruby_gapic_assembly_pkg",
-    "ruby_gapic_library",
+    "ruby_cloud_gapic_library",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
@@ -345,12 +298,19 @@ ruby_grpc_library(
     deps = [":talent_ruby_proto"],
 )
 
-ruby_gapic_library(
+ruby_cloud_gapic_library(
     name = "talent_ruby_gapic",
-    src = ":talent_proto_with_info",
-    gapic_yaml = "talent_gapic.yaml",
-    package = "google.cloud.talent.v4beta1",
-    service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
+    srcs = [":talent_proto_with_info"],
+    extra_protoc_parameters = [
+        "ruby-cloud-gem-name=google-cloud-talent-v4beta1",
+        "ruby-cloud-env-prefix=TALENT",
+        "ruby-cloud-product-url=https://cloud.google.com/solutions/talent-solution",
+        "ruby-cloud-api-id=jobs.googleapis.com",
+        "ruby-cloud-api-shortname=jobs",
+    ],
+    grpc_service_config = "talent_grpc_service_config.json",
+    ruby_cloud_description = "Transform your job search and candidate matching capabilities with Cloud Talent Solution, designed to support enterprise talent acquisition technology and evolve with your growing needs. This AI solution includes features such as Job Search and Profile Search to provide candidates and employers with an enhanced talent acquisition experience.",
+    ruby_cloud_title = "Cloud Talent Solution V4beta1",
     deps = [
         ":talent_ruby_grpc",
         ":talent_ruby_proto",
@@ -391,10 +351,9 @@ csharp_grpc_library(
 
 csharp_gapic_library(
     name = "talent_csharp_gapic",
-    src = ":talent_proto_with_info",
-    gapic_yaml = "talent_gapic.yaml",
-    package = "google.cloud.talent.v4beta1",
-    service_yaml = "//google/cloud/talent:talent_v4beta1.yaml",
+    srcs = [":talent_proto_with_info"],
+    common_resources_config = "@gax_dotnet//:Google.Api.Gax/ResourceNames/CommonResourcesConfig.json",
+    grpc_service_config = "talent_grpc_service_config.json",
     deps = [
         ":talent_csharp_grpc",
         ":talent_csharp_proto",

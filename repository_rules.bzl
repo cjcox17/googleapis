@@ -136,19 +136,37 @@ def switched_rules_by_language(
     )
     rules["java_gapic_library"] = _switch(
         java and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/java:java_gapic.bzl",
-    )
-    rules["java_resource_name_proto_library"] = _switch(
-        java and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/java:java_gapic.bzl",
+        "@gapic_generator_java//rules_java_gapic:java_gapic.bzl",
     )
     rules["java_gapic_test"] = _switch(
         java and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/java:java_gapic.bzl",
+        "@gapic_generator_java//rules_java_gapic:java_gapic.bzl",
     )
     rules["java_gapic_assembly_gradle_pkg"] = _switch(
         java and grpc and gapic,
+        "@gapic_generator_java//rules_java_gapic:java_gapic_pkg.bzl",
+    )
+
+    # Removed the legacy rules once monolith generator is decommissioned
+    rules["java_gapic_library_legacy"] = _switch(
+        java and grpc and gapic,
+        "@com_google_api_codegen//rules_gapic/java:java_gapic.bzl",
+        "java_gapic_library",
+    )
+    rules["java_resource_name_proto_library_legacy"] = _switch(
+        java and grpc and gapic,
+        "@com_google_api_codegen//rules_gapic/java:java_gapic.bzl",
+        "java_resource_name_proto_library",
+    )
+    rules["java_gapic_test_legacy"] = _switch(
+        java and grpc and gapic,
+        "@com_google_api_codegen//rules_gapic/java:java_gapic.bzl",
+        "java_gapic_test",
+    )
+    rules["java_gapic_assembly_gradle_pkg_legacy"] = _switch(
+        java and grpc and gapic,
         "@com_google_api_codegen//rules_gapic/java:java_gapic_pkg.bzl",
+        "java_gapic_assembly_gradle_pkg",
     )
 
     #
@@ -164,20 +182,20 @@ def switched_rules_by_language(
     )
     rules["py_gapic_library"] = _switch(
         python and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/python:py_gapic.bzl",
+        "@gapic_generator_python//rules_python_gapic:py_gapic.bzl",
     )
     rules["py_gapic_assembly_pkg"] = _switch(
         python and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/python:py_gapic_pkg.bzl",
+        "@gapic_generator_python//rules_python_gapic:py_gapic_pkg.bzl",
     )
-    rules["py_gapic_library2"] = _switch(
+    rules["py_gapic_library_legacy"] = _switch(
         python and grpc and gapic,
-        "@gapic_generator_python//rules_python_gapic:py_gapic.bzl",
+        "@com_google_api_codegen//rules_gapic/python:py_gapic.bzl",
         "py_gapic_library",
     )
-    rules["py_gapic_assembly_pkg2"] = _switch(
+    rules["py_gapic_assembly_pkg_legacy"] = _switch(
         python and grpc and gapic,
-        "@gapic_generator_python//rules_python_gapic:py_gapic_pkg.bzl",
+        "@com_google_api_codegen//rules_gapic/python:py_gapic_pkg.bzl",
         "py_gapic_assembly_pkg",
     )
 
@@ -238,6 +256,29 @@ def switched_rules_by_language(
         "@com_google_api_codegen//rules_gapic/php:php_gapic_pkg.bzl",
     )
 
+    # PHP micro-generator beta rules
+    # Rename these micro rules and replace above monolith rules once micro-generator is GA
+    rules["php_proto_library2"] = _switch(
+        php,
+        "@gapic_generator_php//rules_php_gapic:php_gapic.bzl",
+        "php_proto_library",
+    )
+    rules["php_grpc_library2"] = _switch(
+        php and grpc,
+        "@gapic_generator_php//rules_php_gapic:php_gapic.bzl",
+        "php_grpc_library",
+    )
+    rules["php_gapic_library2"] = _switch(
+        php and grpc and gapic,
+        "@gapic_generator_php//rules_php_gapic:php_gapic.bzl",
+        "php_gapic_library",
+    )
+    rules["php_gapic_assembly_pkg2"] = _switch(
+        php and grpc and gapic,
+        "@gapic_generator_php//rules_php_gapic:php_gapic_pkg.bzl",
+        "php_gapic_assembly_pkg",
+    )
+
     #
     # Node.js
     #
@@ -257,15 +298,23 @@ def switched_rules_by_language(
     #
     rules["ruby_proto_library"] = _switch(
         ruby,
-        "@com_google_api_codegen//rules_gapic/ruby:ruby_gapic.bzl",
+        "@gapic_generator_ruby//rules_ruby_gapic:ruby_gapic.bzl",
     )
     rules["ruby_grpc_library"] = _switch(
         ruby and grpc,
-        "@com_google_api_codegen//rules_gapic/ruby:ruby_gapic.bzl",
+        "@gapic_generator_ruby//rules_ruby_gapic:ruby_gapic.bzl",
     )
     rules["ruby_gapic_library"] = _switch(
         ruby and grpc and gapic,
         "@com_google_api_codegen//rules_gapic/ruby:ruby_gapic.bzl",
+    )
+    rules["ruby_ads_gapic_library"] = _switch(
+        ruby and grpc and gapic,
+        "@gapic_generator_ruby//rules_ruby_gapic:ruby_gapic.bzl",
+    )
+    rules["ruby_cloud_gapic_library"] = _switch(
+        ruby and grpc and gapic,
+        "@gapic_generator_ruby//rules_ruby_gapic:ruby_gapic.bzl",
     )
     rules["ruby_gapic_assembly_pkg"] = _switch(
         ruby and grpc and gapic,
@@ -277,19 +326,19 @@ def switched_rules_by_language(
     #
     rules["csharp_proto_library"] = _switch(
         csharp,
-        "@com_google_api_codegen//rules_gapic/csharp:csharp_gapic.bzl",
+        "@gapic_generator_csharp//rules_csharp_gapic:csharp_gapic.bzl",
     )
     rules["csharp_grpc_library"] = _switch(
         csharp and grpc,
-        "@com_google_api_codegen//rules_gapic/csharp:csharp_gapic.bzl",
+        "@gapic_generator_csharp//rules_csharp_gapic:csharp_gapic.bzl",
     )
     rules["csharp_gapic_library"] = _switch(
         csharp and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/csharp:csharp_gapic.bzl",
+        "@gapic_generator_csharp//rules_csharp_gapic:csharp_gapic.bzl",
     )
     rules["csharp_gapic_assembly_pkg"] = _switch(
         csharp and grpc and gapic,
-        "@com_google_api_codegen//rules_gapic/csharp:csharp_gapic_pkg.bzl",
+        "@gapic_generator_csharp//rules_csharp_gapic:csharp_gapic_pkg.bzl",
     )
 
     rules.update(rules_override)

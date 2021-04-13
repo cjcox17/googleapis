@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ option java_multiple_files = true;
 option java_outer_classname = "KeysProto";
 option java_package = "com.google.spanner.v1";
 option php_namespace = "Google\\Cloud\\Spanner\\V1";
+option ruby_package = "Google::Cloud::Spanner::V1";
 
 // KeyRange represents a range of rows in a table or index.
 //
